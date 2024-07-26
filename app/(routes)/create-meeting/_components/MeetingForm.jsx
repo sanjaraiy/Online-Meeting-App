@@ -1,7 +1,9 @@
 "use client";
 
 import { ChevronLeft } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +14,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import LocationOption from "@/app/_utils/LocationOption";
+import Image from "next/image";
+import Link from "next/link";
+import ThemeOptions from "@/app/_utils/ThemeOptions";
 
 function MeetingForm() {
+  
+ const [location, setLocation] = useState('');
+ const [themeColor, setThemeColor] = useState('');
+
+
+
   return (
-    <div className="p-4">
-      <h2 className="flex gap-2">
-        <ChevronLeft></ChevronLeft> Cancel
-      </h2>
+    <div className="p-8">
+      <Link href={'/dashboard'}>
+        <h2 className="flex gap-2">
+            <ChevronLeft></ChevronLeft> Cancel
+        </h2>
+      </Link>
       <div className="mt-4">
         <h2 className="font-bold text-2xl my-4">Create New Event</h2>
         <hr />
@@ -45,7 +59,37 @@ function MeetingForm() {
         </DropdownMenu>
 
         <h2 className="font-bold">Location *</h2>
+        <div className="grid grid-cols-4 gap-3">
+            {
+                LocationOption.map((option, idx) => (
+                    <div onClick={() => setLocation(option.name)} key={idx} className={`border flex hover:bg-blue-100 hover:border-primary cursor-pointer flex-col justify-center items-center p-3 ${location == option.name && 'bg-blue-100 border-primary'} rounded-lg`}>
+                        <Image src={option.icon} width={30} height={30} alt={option.name}></Image>
+                        <h2>{option.name}</h2>
+                    </div>
+
+                ))
+            }
+        </div>
+        {
+            location && (<>
+                <h2 className="font-bold ">Add {location} Url</h2>
+                <Input placeholder='Add url'></Input>
+            </>)
+        }
+        <h2 className="font-bold">Select Theme Color</h2>
+        <div className="flex justify-evenly">
+            {
+               ThemeOptions.map((color,idx)=>(
+                 <div key={idx} className={`h-7 w-7 cursor-pointer rounded-full ${themeColor==color && 'border-4 border-black '}`}
+                  style={{backgroundColor:color}}
+                  onClick={() => setThemeColor(color)}
+                 ></div>
+               ))
+            }
+        </div>
       </div>
+       <Button className='w-full mt-5'>Create</Button>
+       
     </div>
   );
 }
