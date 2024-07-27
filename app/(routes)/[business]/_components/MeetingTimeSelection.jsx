@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, Timer } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -8,12 +8,28 @@ import { Calendar } from "@/components/ui/calendar";
 
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import TimeDateSelection from "./TimeDateSelection";
+import UserFormInfo from "./UserFormInfo";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { app } from "@/config/Firebase";
+import { toast } from "sonner";
 
 function MeetingTimeSelection({eventInfo, businessInfo}) {
     
     const [date, setDate] = useState(new Date());
     const [timeSlots, setTimeSlots] = useState();
     const [enableTimeSlot,setEnabledTimeSlot] = useState(false);
+    const [selectedTime,setSelectedTime]=useState();
+    const [step, setStep] = useState(1);
+   
+
+    const [userName, setUserName] = useState();
+    const [userEmail, setUserEmail] = useState();
+    const [userMessage, setUserMessage] = useState('');
+
+    const db = getFirestore(app);
+
+
     useEffect(() => {
   
       eventInfo?.duration && createTimeSlot(eventInfo?.duration);
@@ -49,6 +65,34 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
     }
  }
   
+const onScheduleEventHandler = async () => {
+      
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        if(regex.test(userEmail)==false){
+            toast('Invalid Email address..!!')
+            return;
+        }
+       
+       const docId = Date.now().toString();
+       
+       await setDoc(doc(db,'ScheduledMeetings',docId),{
+          businessName:businessInfo.businessName,
+          businessEmail:businessInfo.email,
+          selectedTime:businessInfo.selectedTime,
+          selectedDate:date,
+          duration:eventInfo.duration,
+          location:eventInfo.locationUrl,
+          eventId:eventInfo.id,
+          id:docId,
+          userName:userName,
+          userEmail:userEmail,
+          userMessage:userMessage,
+       }).then((response) => {
+          toast('Meeting Scheduled successfully..!!');
+       })
+      
+}
+
     return (
       <div className="p-5 py-10 shadow-lg m-5 border-t-8 mx-10 md:mx-26 lg:mx-56 my-10"
        style={{borderTopColor:eventInfo?.themeColor}}
@@ -69,6 +113,14 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
               <h2 className="flex gap-2">
                 <MapPin></MapPin> {eventInfo?.locationType} Meeting
               </h2>
+              <h2 className="flex gap-2">
+                <CalendarCheck></CalendarCheck> {format(date,'PPP')} 
+              </h2>
+              {
+                selectedTime && <h2 className="flex gap-2">
+                <Timer></Timer> {selectedTime} 
+              </h2>
+              }
               <Link
                 className="text-primary"
                 href={eventInfo?.locationUrl ? eventInfo?.locationUrl : "#"}
@@ -78,34 +130,29 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
             </div>
           </div>
           {/* Time & Date Selection */}
-          <div className="md:col-span-2 flex px-4">
-            <div className="flex flex-col">
-              <h2 className="font-bold text-lg">Select Date & Time</h2>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(d)=>onChangeDateHandler(d)}
-                className="rounded-md border mt-5"
-                disabled={(date) => date <= new Date()}
-              />
-            </div>
-            <div
-              className="flex flex-col overflow-auto gap-4 p-5"
-              style={{ maxHeight: "400px" }}
-            >
-              {timeSlots?.map((time, idx) => (
-                <Button
-                  disabled={!enableTimeSlot}
-                  key={idx}
-                  className="border-primary text-primary"
-                  variant="outline"
-                >
-                  {time}
-                </Button>
-              ))}
-            </div>
-          </div>
+          {
+            step==1 ? ( <TimeDateSelection
+            date={date}
+            enableTimeSlot={enableTimeSlot}
+            onChangeDateHandler={onChangeDateHandler}
+            setSelectedTime={setSelectedTime}
+            selectedTime={selectedTime}
+            timeSlots={timeSlots}
+          ></TimeDateSelection>) : (<UserFormInfo
+            setUserName={setUserName} setUserEmail={setUserEmail} setUserMessage={setUserMessage}
+           ></UserFormInfo>)
+          }
         </div>
+        <div className="mb-16">
+         {
+            step==2 && <Button variant="outline" onClick={()=>setStep(1)}>Back</Button>
+         }
+         {
+            step==1 ? ( <Button disabled={!selectedTime || !date} onClick={()=>setStep(step+1)} className='mt-10 float-right'>Next
+            </Button>) : (<Button onClick={onScheduleEventHandler} disabled={!userEmail || !userName}>Schedule</Button>)
+         }
+        </div>
+        
       </div>
     );
 }
