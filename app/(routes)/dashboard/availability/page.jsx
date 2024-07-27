@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, getFirestore, updateDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import DaysList from "@/app/_utils/DaysList";
 import React, { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,27 +13,28 @@ import { toast } from "sonner";
 function Availability() {
    
   const [daysAvailable, setDaysAvailable]=useState(
+   
     {
-      Sunday:false,
+    Sunday:false,
     },
-    {
-      Monday:false,
-    },
-    {
-      Tuesday:false,
-    },
-    {
-      Wednesday:false,
-    },
-    {
-      Thursday:false,
-    },
-    {
-      Friday:false,
-    },
-    {
-      Saturday:false,
-    },
+  {
+    Monday:false,
+  },
+  {
+    Tuesday:false,
+  },
+  {
+    Wednesday:false,
+  },
+  {
+    Thursday:false,
+  },
+  {
+    Friday:false,
+  },
+  {
+    Saturday:false,
+  }
 );
 
   const [startTime, setStartTime]=useState();
@@ -83,9 +84,9 @@ function Availability() {
         <h2 className="font-bold">Availability Days</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 my-3">
           {DaysList.map((item, idx) => (
-            <div key={idx} className="">
+            <div key={idx}>
               <h2>
-                <Checkbox  checked={daysAvailable[item.day] ? daysAvailable[item.day]  : false } onCheckedChange={(isAvailable) => onChangeHandler(item.day, isAvailable)}/> {item.day}
+                <Checkbox  checked={daysAvailable?.[item.day] ? daysAvailable?.[item.day]  : false } onCheckedChange={(isAvailable) => onChangeHandler(item.day, isAvailable)}/> {item.day}
               </h2>
             </div>
           ))}

@@ -1,5 +1,5 @@
 "use client";
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, getDoc } from "firebase/firestore";
 import { app } from "@/config/Firebase";
 import { getFirestore, orderBy } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -19,9 +19,10 @@ function MeetingEventList() {
   const db = getFirestore(app);
   const { user } = useKindeBrowserClient();
   const [eventList, setEventList] = useState([]);
-
+  const [businessInfo,setBusinessInfo] = useState();
   useEffect(() => {
     user && getEventList();
+    user && BusinessInfo();
   }, [user]);
 
   const getEventList = async () => {
@@ -47,12 +48,25 @@ function MeetingEventList() {
         
       } )
   }
+  const BusinessInfo= async()=>{
+    const docRef = doc(db,'Business',user?.email);
+    const docSnap = await getDoc(docRef);
+    setBusinessInfo(docSnap.data());
+  }
+
+  const onCopyClickHandler = (event) => {
+    const meetingEventUrl = process.env.NEXT_PUBLIC_BASE_URL+'/'+businessInfo.businessName+'/'+event?.id
+    navigator.clipboard.writeText(meetingEventUrl);
+    toast("Url Copied to Clipboard");
+  } 
+
+ 
 
   return (
     <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 lg:grid-cols-3">
       {eventList.length > 0 ? (
         eventList?.map((event, idx) => (
-          <div
+          <div key={idx}
             className="border p-5 shadow-md border-t-8 rounded-lg flex flex-col gap-3"
             style={{ borderTopColor: event?.themeColor }}
           >
@@ -84,8 +98,8 @@ function MeetingEventList() {
               <h2
                 className="flex gap-2 text-sm text-primary items-center cursor-pointer"
                 onClick={() => {
-                  navigator.clipboard.writeText(event.locationUrl);
-                  toast("Url Copied to Clipboard");
+                  onCopyClickHandler(event)
+                 
                 }}
               >
                 <Copy className="h-5 w-5"></Copy> Copy Link
