@@ -19,16 +19,23 @@ import LocationOption from "@/app/_utils/LocationOption";
 import Image from "next/image";
 import Link from "next/link";
 import ThemeOptions from "@/app/_utils/ThemeOptions";
+import { getFirestore } from "firebase/firestore";
+import { app } from "@/config/Firebase";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function MeetingForm({setFormValue}) {
   
+    const db = getFirestore(app);
+    const router = useRouter();
 
  const [themeColor, setThemeColor] = useState('');
  const [eventName, setEventName] = useState('');
  const [duration, setDuration] = useState(30);
  const [locationType, setLocationType] = useState();
  const [locationUrl, setLocationUrl] = useState('');
-
+ const {user}=useKindeBrowserClient();
  
   
  useEffect(()=>{
@@ -41,6 +48,25 @@ function MeetingForm({setFormValue}) {
     })
 
  },[eventName, duration, locationType, locationUrl, themeColor])
+
+
+ const onCreateHandler = async() => {
+    const id = Date.now().toString();
+
+    await setDoc(doc(db,'MeetingEvent',id),{
+       _id: id,
+       eventName: eventName,
+       duration: duration,
+       locationType: locationType,
+       locationUrl: locationUrl,
+       themeColor: themeColor,
+       businessId: doc(db,'Business',user?.email),
+       createdBy:user?.email,
+    }).then((response) => {
+        toast('New Meeting Event Created!')
+        router.replace('/dashboard/meeting-type')
+    })
+ }
 
 
   return (
@@ -105,7 +131,7 @@ function MeetingForm({setFormValue}) {
             }
         </div>
       </div>
-       <Button disabled={(!eventName || !duration || !locationType || !locationUrl)}  className='w-full mt-5'>Create</Button>
+       <Button disabled={(!eventName || !duration || !locationType || !locationUrl)}  className='w-full mt-5' onClick={onCreateHandler}>Create</Button>
        
     </div>
   );
