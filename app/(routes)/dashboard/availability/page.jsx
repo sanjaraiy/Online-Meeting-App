@@ -2,7 +2,7 @@
 
 import { doc, getFirestore, updateDoc } from "firebase/firestore";
 import DaysList from "@/app/_utils/DaysList";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,30 @@ import { toast } from "sonner";
 
 function Availability() {
    
-  const [daysAvailable, setDaysAvailable]=useState([]);
+  const [daysAvailable, setDaysAvailable]=useState(
+    {
+      Sunday:false,
+    },
+    {
+      Monday:false,
+    },
+    {
+      Tuesday:false,
+    },
+    {
+      Wednesday:false,
+    },
+    {
+      Thursday:false,
+    },
+    {
+      Friday:false,
+    },
+    {
+      Saturday:false,
+    },
+);
+
   const [startTime, setStartTime]=useState();
   const [endTime, setEndTime] = useState();
    
@@ -24,6 +47,19 @@ function Availability() {
         ...daysAvailable,
         [day]:isAvailable
       })
+  }
+
+  useEffect(()=> {
+      user && getBusinessInfo();
+  },[user])
+
+  const getBusinessInfo = async () => {
+    const docRef = doc(db,'Business',user.email);
+    const docSnap = await getDoc(docRef);
+    const result = docSnap.data();
+    setDaysAvailable(result.daysAvailable);
+    setStartTime(result.startTime);
+    setEndTime(result.endTime);
   }
 
   const onSaveHandler= async() => {
@@ -49,7 +85,7 @@ function Availability() {
           {DaysList.map((item, idx) => (
             <div key={idx} className="">
               <h2>
-                <Checkbox  onCheckedChange={(isAvailable) => onChangeHandler(item.day, isAvailable)}/> {item.day}
+                <Checkbox  checked={daysAvailable[item.day] ? daysAvailable[item.day]  : false } onCheckedChange={(isAvailable) => onChangeHandler(item.day, isAvailable)}/> {item.day}
               </h2>
             </div>
           ))}
@@ -60,11 +96,11 @@ function Availability() {
         <div className="flex gap-10">
           <div className="mt-3">
             <h2>Start Time</h2>
-            <Input type="time" onChange={(e)=>setStartTime(e.target.value)}></Input>
+            <Input type="time" defaultValue={startTime} onChange={(e)=>setStartTime(e.target.value)}></Input>
           </div>
           <div className="mt-3">
-            <h2>Start Time</h2>
-            <Input type="time" onChange={(e)=>setEndTime(e.target.value)}></Input>
+            <h2>End Time</h2>
+            <Input type="time" defaultValue={endTime} onChange={(e)=>setEndTime(e.target.value)}></Input>
           </div>
         </div>
       </div>
