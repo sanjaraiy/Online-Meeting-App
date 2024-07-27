@@ -19,7 +19,7 @@ import LocationOption from "@/app/_utils/LocationOption";
 import Image from "next/image";
 import Link from "next/link";
 import ThemeOptions from "@/app/_utils/ThemeOptions";
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { app } from "@/config/Firebase";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { toast } from "sonner";
@@ -54,7 +54,7 @@ function MeetingForm({setFormValue}) {
     const id = Date.now().toString();
 
     await setDoc(doc(db,'MeetingEvent',id),{
-       _id: id,
+       id: id,
        eventName: eventName,
        duration: duration,
        locationType: locationType,
