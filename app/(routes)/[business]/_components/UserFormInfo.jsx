@@ -1,12 +1,11 @@
+'use client'
+
 import { Input } from '@/components/ui/input'
 import React, { useState } from 'react'
 
 function UserFormInfo({setUserName,setUserEmail,setUserMessage}) {
    
-
-    
-
-  return (
+return (
     <div className='p-4 px-8'>
         <h2 className='font-bold text-xl'>Enter Details</h2>
         <div>

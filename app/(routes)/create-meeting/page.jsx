@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import MeetingForm from './_components/MeetingForm'
 import PreviewMeeting from './_components/PreviewMeeting';
 
+
 function CreateMeeting() {
        
     const [formValue,setFormValue] = useState();
@@ -19,8 +20,7 @@ function CreateMeeting() {
         <PreviewMeeting formValue={formValue}></PreviewMeeting>
     </div>
       
-    <div></div>
-
+  
     </div>
   )
 }

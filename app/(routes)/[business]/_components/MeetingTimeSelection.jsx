@@ -1,18 +1,24 @@
 "use client";
 
-import { Clock, MapPin, Timer } from "lucide-react";
+import { CalendarCheck, Clock, MapPin, Timer } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, formatDate } from "date-fns";
 import TimeDateSelection from "./TimeDateSelection";
 import UserFormInfo from "./UserFormInfo";
 import { collection, doc, getDocs, getFirestore, query, setDoc, where } from "firebase/firestore";
 import { app } from "@/config/Firebase";
 import { toast } from "sonner";
+import Plunk from "@plunk/node";
+// import { render } from "@react-email/components";
+import {render} from "@react-email/render";
+import Email from "@/emails";
+import { useRouter } from "next/navigation";
+
 
 function MeetingTimeSelection({eventInfo, businessInfo}) {
     
@@ -28,7 +34,9 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
     const [userMessage, setUserMessage] = useState('');
     const [prevBooking, setPrevBooking] = useState([]);
     const db = getFirestore(app);
+    const plunk = new Plunk(process.env.NEXT_PUBLIC_PLUNK_API_KEY);
 
+    const router = useRouter();
 
     useEffect(() => {
   
@@ -57,10 +65,10 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
 
  const onChangeDateHandler = (date) => {
     setDate(date);
-    const date = format(date,'EEEE');
+    const _date = format(date,'EEEE');
     if(businessInfo?.daysAvailable?.[day]){
       setEnabledTimeSlot(true);
-      getPrevEventBookikng(date);
+      getPrevEventBookikng(_date);
     }else{
       setEnabledTimeSlot(false);
      
@@ -83,6 +91,8 @@ const onScheduleEventHandler = async () => {
           businessEmail:businessInfo.email,
           selectedTime:businessInfo.selectedTime,
           selectedDate:date,
+          formatedDate:format(date,'PPP'),
+          formatedTimeStamp:format(date,'t'),
           duration:eventInfo.duration,
           location:eventInfo.locationUrl,
           eventId:eventInfo.id,
@@ -92,6 +102,7 @@ const onScheduleEventHandler = async () => {
           userMessage:userMessage,
        }).then((response) => {
           toast('Meeting Scheduled successfully..!!');
+          sendEmail(userName);
        })
       
 }
@@ -110,6 +121,28 @@ const getPrevEventBookikng = async(date_) => {
      setPrevBooking((prev)=>[...prev,doc.data()]);
    })
 }
+
+
+  const sendEmail = (user) => {
+    const emailHtml = render(<Email
+      businessName={businessInfo?.businessName}
+      date={format(date, 'PPP').toString()}
+      duration={eventInfo.duration}
+      meetingTime={selectedTime}
+      meetingUrl={eventInfo.locationUrl}
+      userFirstName={user}
+
+    />);
+
+    plunk.emails.send({
+      to: userEmail,
+      subject: "Meeting Schedule Details",
+      body: emailHtml,
+    }).then((res) => {
+        console.log(res);
+        router.replace('/comfirmation')
+    })
+  }
 
     return (
       <div className="p-5 py-10 shadow-lg m-5 border-t-8 mx-10 md:mx-26 lg:mx-56 my-10"
@@ -147,6 +180,7 @@ const getPrevEventBookikng = async(date_) => {
               </Link>
             </div>
           </div>
+
           {/* Time & Date Selection */}
           {
             step==1 ? ( <TimeDateSelection
@@ -171,7 +205,7 @@ const getPrevEventBookikng = async(date_) => {
             </Button>) : (<Button onClick={onScheduleEventHandler} disabled={!userEmail || !userName}>Schedule</Button>)
          }
         </div>
-        
+       
       </div>
     );
 }

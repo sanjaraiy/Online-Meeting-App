@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react'
 import MeetingTimeSelection from '../_components/MeetingTimeSelection'
-import { collection, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore'
 import { app } from '@/config/Firebase'
+
 
 function SharedMeetingEvent({params}) {
     
+      
     const db=getFirestore(app);
     const [businessInfo, setBusinessInfo] = useState();
     const [eventInfo, setEventInfo] = useState();

@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 function MeetingEventList() {
   const db = getFirestore(app);
@@ -105,7 +106,9 @@ function MeetingEventList() {
               >
                 <Copy className="h-5 w-5"></Copy> Copy Link
               </h2>
-              <Button className="rounded-lg">Share</Button>
+              <Button className="rounded-lg">
+                Share
+              </Button>
             </div>
           </div>
         ))

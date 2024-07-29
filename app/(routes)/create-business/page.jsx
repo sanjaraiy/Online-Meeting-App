@@ -11,13 +11,14 @@ import { app } from "@/config/Firebase";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useRouter } from "next/navigation";
 
+
 function CreateBusiness() {
 
    const [businessName, setBusinessName] = useState('');
    const router = useRouter();
    const db = getFirestore(app);
    const {user} = useKindeBrowserClient();
-   
+
    const onCreateBusiness = async() => {
        
        await setDoc(doc(db, 'Business', user.email), {
@@ -40,7 +41,6 @@ function CreateBusiness() {
             <div className='w-full'>
                 <label htmlFor="" className='text-slate-400'>Team Name</label>
                 <Input  onChange={(e) => setBusinessName(e.target.value)}  placeholder='Enter team name...' className="mt-2" />
-             
             </div>
             <Button  onClick={onCreateBusiness}  className='w-full' disabled={!businessName}>Create Business</Button>
         </div>

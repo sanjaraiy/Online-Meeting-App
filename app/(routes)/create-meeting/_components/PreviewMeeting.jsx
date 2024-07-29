@@ -9,7 +9,6 @@ import { interval } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 function PreviewMeeting({ formValue }) {
-    console.log(formValue);
   const [date, setDate] = useState(new Date());
   const [timeSlots, setTimeSlots] = useState();
 
@@ -38,7 +37,6 @@ function PreviewMeeting({ formValue }) {
   };
 
 
-  // console.log(formValue?.themeColor);
   
 
   return (
