@@ -83,7 +83,7 @@ function MeetingForm({setFormValue}) {
       <div className="flex flex-col gap-3 my-4">
         <h2 className="font-bold">Event Name*</h2>
         <Input onChange={(event)=>setEventName(event.target.value)} placeholder="Name of your meeting event"></Input>
-        <h2 className="font-bold">Duration *</h2>
+        <h2 className="font-bold">Duration*</h2>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -105,6 +105,7 @@ function MeetingForm({setFormValue}) {
         <div className="grid grid-cols-4 gap-3">
             {
                 LocationOption.map((option, idx) => (
+                  
                     <div onClick={() => setLocationType(option.name)} key={idx} className={`border flex hover:bg-blue-100 hover:border-primary cursor-pointer flex-col justify-center items-center p-3 ${ locationType == option.name && 'bg-blue-100 border-primary'} rounded-lg`}>
                         <Image src={option.icon} width={30} height={30} alt={option.name}></Image>
                         <h2>{option.name}</h2>

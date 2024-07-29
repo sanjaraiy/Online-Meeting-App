@@ -17,6 +17,7 @@ function CreateBusiness() {
    const router = useRouter();
    const db = getFirestore(app);
    const {user} = useKindeBrowserClient();
+   
    const onCreateBusiness = async() => {
        
        await setDoc(doc(db, 'Business', user.email), {

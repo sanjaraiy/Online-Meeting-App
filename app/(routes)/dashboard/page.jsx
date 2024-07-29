@@ -15,6 +15,7 @@ function Dashboard() {
     const {user} = useKindeBrowserClient();
     
     const router = useRouter();
+
     useEffect(()=>{
         user && isBusinessRegistered();
     },[user])
@@ -42,7 +43,7 @@ function Dashboard() {
   return (
     <div>
       <MeetingType></MeetingType>
-      <LogoutLink>Logout</LogoutLink>
+      
     </div>
   )
 }

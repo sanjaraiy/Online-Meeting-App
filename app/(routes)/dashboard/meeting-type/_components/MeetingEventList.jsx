@@ -20,6 +20,7 @@ function MeetingEventList() {
   const { user } = useKindeBrowserClient();
   const [eventList, setEventList] = useState([]);
   const [businessInfo,setBusinessInfo] = useState();
+
   useEffect(() => {
     user && getEventList();
     user && BusinessInfo();
@@ -109,7 +110,7 @@ function MeetingEventList() {
           </div>
         ))
       ) : (
-        <h2>Loading...</h2>
+        <h2>No Such Meeting...</h2>
       )}
     </div>
   );

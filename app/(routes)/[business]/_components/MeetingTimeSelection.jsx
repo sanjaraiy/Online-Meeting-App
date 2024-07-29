@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import TimeDateSelection from "./TimeDateSelection";
 import UserFormInfo from "./UserFormInfo";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, getFirestore, query, setDoc, where } from "firebase/firestore";
 import { app } from "@/config/Firebase";
 import { toast } from "sonner";
 
@@ -26,7 +26,7 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
     const [userName, setUserName] = useState();
     const [userEmail, setUserEmail] = useState();
     const [userMessage, setUserMessage] = useState('');
-
+    const [prevBooking, setPrevBooking] = useState([]);
     const db = getFirestore(app);
 
 
@@ -60,14 +60,17 @@ function MeetingTimeSelection({eventInfo, businessInfo}) {
     const date = format(date,'EEEE');
     if(businessInfo?.daysAvailable?.[day]){
       setEnabledTimeSlot(true);
+      getPrevEventBookikng(date);
     }else{
       setEnabledTimeSlot(false);
+     
     }
  }
   
 const onScheduleEventHandler = async () => {
       
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
         if(regex.test(userEmail)==false){
             toast('Invalid Email address..!!')
             return;
@@ -91,6 +94,21 @@ const onScheduleEventHandler = async () => {
           toast('Meeting Scheduled successfully..!!');
        })
       
+}
+
+/**
+ * Used to Fetch Previous Booking for given event
+ * @param {*} date_ 
+ */
+
+const getPrevEventBookikng = async(date_) => {
+   const q=query(collection(db,'ScheduledMeetings'),where('selectedDate','==',date_),where('eventId','==',eventInfo.id));
+
+   const querySnapshot = await getDocs(q);
+   querySnapshot.forEach((doc) => {
+     console.log("--",doc.data());
+     setPrevBooking((prev)=>[...prev,doc.data()]);
+   })
 }
 
     return (
@@ -138,6 +156,7 @@ const onScheduleEventHandler = async () => {
             setSelectedTime={setSelectedTime}
             selectedTime={selectedTime}
             timeSlots={timeSlots}
+            prevBooking={prevBooking}
           ></TimeDateSelection>) : (<UserFormInfo
             setUserName={setUserName} setUserEmail={setUserEmail} setUserMessage={setUserMessage}
            ></UserFormInfo>)

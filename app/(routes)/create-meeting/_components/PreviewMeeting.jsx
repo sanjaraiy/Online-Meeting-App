@@ -37,7 +37,9 @@ function PreviewMeeting({ formValue }) {
     setTimeSlots(slots);
   };
 
-  console.log(formValue?.themeColor);
+
+  // console.log(formValue?.themeColor);
+  
 
   return (
     <div className="p-5 py-10 shadow-lg m-5 border-t-8"
